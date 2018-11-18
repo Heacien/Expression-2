@@ -15,42 +15,70 @@
                                                                           
 
 if(first()){
+    # HelpString Value
     HelpString = array()
     HelpString:pushString("")
     HelpString:pushString("ADAC Calculation")
     HelpString:pushString("!calc <Auspuff-Amount> <Auspuff-Amount> <Licht-Amount> <Reifen-Amount> <Abgeschleppt true/false>")
     
+    # Gibt alle HelpStrings in der Console aus
     for(I=1, HelpString:count()) { print(_HUD_PRINTCONSOLE, HelpString[I,string]) }
     
 }
                                                                           
 runOnChat(1)
 if(chatClk(owner())){
+    # Strings aus Command mit Ziffern
     Said = lastSaid():explode(" ")
-    Motor = Said[2,string]
-    Auspuff = Said[3,string]
-    Licht = Said[4,string]
-    Reifen = Said[5,string]
+    Motor = Said[2,string]:toNumber()
+    Auspuff = Said[3,string]:toNumber()
+    Licht = Said[4,string]:toNumber()
+    Reifen = Said[5,string]:toNumber()
     Abgeschleppt = Said[6,string]
-    PreisM = "1000"
-    PreisA = "500"
-    PreisL = "120"
-    PreisR = "210"
-    PreisAb = "400"
     
-    if(Said[1,string]=="!calc" && Motor!="" && Auspuff!="" && Licht!="" && Reifen!="" && Abgeschleppt!=""){
+    #Strings fuer den Namen
+    Kunde = findPlayerByName(Said[7,string]):toString()
+    PluckedName = Kunde:explode(" ")
+    
+    # Preise fuer Bauteile / Services
+    PreisM = 1000 # Preis fuer einen verbauten Motor
+    PreisA = 500 # Preis fuer einen verbauten Auspuff
+    PreisL = 120 # Preis fuer ein verbautes Licht
+    PreisR = 210 # Preis fuer einen verbauten Reifen
+    PreisAb = 400 # Kosten fuer Abschleppen
+    PreisRep = 30 # Kosten fuer Reparatur (Prozentualer Aufschlag)
+    
+    #Checkt ob der Command vollstaendig ist
+    if(Said[1,string]=="!calc" && Said[2,string]!="" && Said[3,string]!="" && Said[4,string]!="" && Said[5,string]!="" && Said[6,string]!=""){
+        # Laesst die Chat Message nicht anzeigen
+        hideChat(1)
         
+        # Fahrzeug wurde abgeschleppt (false/true String)
         if(Abgeschleppt=="true"){
-            Zwischenrechnung = Motor:toNumber() * PreisM:toNumber() + Auspuff:toNumber() * PreisA:toNumber() + Licht:toNumber() * PreisL:toNumber() + Reifen:toNumber() * PreisR:toNumber() + PreisAb:toNumber()
-            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * 20
-            print(Rechnung)
+            #Rechnet die Endsumme aus
+            Zwischenrechnung = Motor * PreisM + Auspuff * PreisA + Licht * PreisL + Reifen * PreisR + PreisAb
+            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * PreisRep 
+            # Gibt die Summe im Chat aus          
+            print("Zu bezahlende Summe: "+Rechnung)           
+            # Schickt dem Kunde eine Nachricht, falls Kunde angegeben
+            if(Said[7,string]!="" && findPlayerByName(Kunde):isPlayer()){
+                concmd("say /pm " + PluckedName[1,string] + "Ihr Fahrzeug ist fertig. Sie koennen es nun in der Werkstatt abholen. Die Rechnung betraegt: "+Rechnung+".")
+            }
         
-        
+        # Fahrzeug wurde nicht abgeschleppt (false/true String)
         }elseif(Abgeschleppt=="false"){
-            Zwischenrechnung = Motor:toNumber() * PreisM:toNumber() + Auspuff:toNumber() * PreisA:toNumber() + Licht:toNumber() * PreisL:toNumber() + Reifen:toNumber() * PreisR:toNumber()
-            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * 20
-            print(Rechnung)
+            # Rechnet die Endsumme aus
+            Zwischenrechnung = Motor * PreisM + Auspuff * PreisA + Licht * PreisL + Reifen * PreisR
+            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * PreisRep
+            # Gibt die Summer im Chat aus
+            print("Zu bezahlende Summe: " +Rechnung)
+            # Schickt dem Kunde eine Nachricht, falls Kunde angegeben
+            if(Said[7,string]!="" && findPlayerByName(Kunde):isPlayer()){
+                print(Kunde)
+                concmd("say /pm " + PluckedName[1,string] + "Ihr Fahrzeug ist fertig. Sie koennen es nun in der Werkstatt abholen. Die Rechnung betraegt: "+Rechnung+".")
+            }
         }else{
+            # Gibt eine Fehlermeldung aus
             print("Fehler. Kosten konten nicht berechnet werden!")
         }            
     }
