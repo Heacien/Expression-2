@@ -1,9 +1,9 @@
 @name ADAC Calc
 @inputs 
 @outputs 
-@persist 
+@persist [PreisM, PreisA, PreisL, PreisR, PreisAb, PreisRep]:number
 @trigger 
-
+    
 #       /$$     /$$                  /$$$$$$  /$$ /$$                          
 #      | $$    | $$                 /$$__  $$|__/|__/                          
 #     /$$$$$$  | $$$$$$$   /$$$$$$ | $$  \__/ /$$ /$$ /$$   /$$ /$$   /$$      
@@ -12,7 +12,19 @@
 #      | $$ /$$| $$  | $$| $$_____/ /$$  \ $$| $$| $$  >$$  $$   >$$  $$       
 #      |  $$$$/| $$  | $$|  $$$$$$$|  $$$$$$/| $$| $$ /$$/\  $$ /$$/\  $$      
 #       \___/  |__/  |__/ \_______/ \______/ |__/|__/|__/  \__/|__/  \__/      
-                                                                          
+
+function zwischenrechnung (Motor:number, Auspuff:number, Licht:number, Reifen:number, PreisAb:number, PluckedName:string){
+    Zwischenrechnung = Motor * PreisM + Auspuff * PreisA + Licht * PreisL + Reifen * PreisR + PreisAb
+    
+    Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * PreisRep
+    # Gibt die Summer im Chat aus
+    print("Zu bezahlende Summe: " +Rechnung)
+    # Schickt dem Kunde eine Nachricht, falls Kunde angegeben
+    print(PluckedName)
+    if(findPlayerByName(PluckedName):isPlayer()){
+        concmd("say /pm " + PluckedName + "Ihr Fahrzeug ist fertig. Sie koennen es nun in der Werkstatt abholen. Die Rechnung betraegt: "+Rechnung+".")
+    }
+}
 
 if(first()){
     # HelpString Value
@@ -24,6 +36,13 @@ if(first()){
     # Gibt alle HelpStrings in der Console aus
     for(I=1, HelpString:count()) { print(_HUD_PRINTCONSOLE, HelpString[I,string]) }
     
+    # Preise fuer Bauteile / Services
+    PreisM = 1000 # Preis fuer einen verbauten Motor
+    PreisA = 500 # Preis fuer einen verbauten Auspuff
+    PreisL = 120 # Preis fuer ein verbautes Licht
+    PreisR = 210 # Preis fuer einen verbauten Reifen
+    PreisAb = 400 # Kosten fuer Abschleppen
+    PreisRep = 30 # Kosten fuer Reparatur (Prozentualer Aufschlag)
 }
                                                                           
 runOnChat(1)
@@ -37,49 +56,26 @@ if(chatClk(owner())){
     Abgeschleppt = Said[6,string]
     
     #Strings fuer den Namen
-    Kunde = findPlayerByName(Said[7,string]):toString()
-    PluckedName = Kunde:explode(" ")
-    
-    # Preise fuer Bauteile / Services
-    PreisM = 1000 # Preis fuer einen verbauten Motor
-    PreisA = 500 # Preis fuer einen verbauten Auspuff
-    PreisL = 120 # Preis fuer ein verbautes Licht
-    PreisR = 210 # Preis fuer einen verbauten Reifen
-    PreisAb = 400 # Kosten fuer Abschleppen
-    PreisRep = 30 # Kosten fuer Reparatur (Prozentualer Aufschlag)
+    Kunde = findPlayerByName(Said[7,string])
+    print(Kunde)
+    PluckedName = Kunde:getName()#:explode(" ")[1,string]
     
     #Checkt ob der Command vollstaendig ist
-    if(Said[1,string]=="!calc" && Said[2,string]!="" && Said[3,string]!="" && Said[4,string]!="" && Said[5,string]!="" && Said[6,string]!=""){
+    if(Said[1,string] == "!calc"){
         # Laesst die Chat Message nicht anzeigen
         hideChat(1)
         
         # Fahrzeug wurde abgeschleppt (false/true String)
         if(Abgeschleppt=="true"){
             #Rechnet die Endsumme aus
-            Zwischenrechnung = Motor * PreisM + Auspuff * PreisA + Licht * PreisL + Reifen * PreisR + PreisAb
-            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * PreisRep 
-            # Gibt die Summe im Chat aus          
-            print("Zu bezahlende Summe: "+Rechnung)           
-            # Schickt dem Kunde eine Nachricht, falls Kunde angegeben
-            if(Said[7,string]!="" && findPlayerByName(Kunde):isPlayer()){
-                concmd("say /pm " + PluckedName[1,string] + "Ihr Fahrzeug ist fertig. Sie koennen es nun in der Werkstatt abholen. Die Rechnung betraegt: "+Rechnung+".")
-            }
-        
+            zwischenrechnung(Motor, Auspuff, Licht, Reifen, PreisAb, PluckedName)
         # Fahrzeug wurde nicht abgeschleppt (false/true String)
         }elseif(Abgeschleppt=="false"){
             # Rechnet die Endsumme aus
-            Zwischenrechnung = Motor * PreisM + Auspuff * PreisA + Licht * PreisL + Reifen * PreisR
-            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * PreisRep
-            # Gibt die Summer im Chat aus
-            print("Zu bezahlende Summe: " +Rechnung)
-            # Schickt dem Kunde eine Nachricht, falls Kunde angegeben
-            if(Said[7,string]!="" && findPlayerByName(Kunde):isPlayer()){
-                print(Kunde)
-                concmd("say /pm " + PluckedName[1,string] + "Ihr Fahrzeug ist fertig. Sie koennen es nun in der Werkstatt abholen. Die Rechnung betraegt: "+Rechnung+".")
-            }
+            zwischenrechnung(Motor, Auspuff, Licht, Reifen, 0, PluckedName)
         }else{
             # Gibt eine Fehlermeldung aus
             print("Fehler. Kosten konten nicht berechnet werden!")
-        }            
+        }
     }
-}                                                                          
+}
