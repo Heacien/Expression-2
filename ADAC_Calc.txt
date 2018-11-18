@@ -1,0 +1,57 @@
+@name ADAC Calc
+@inputs 
+@outputs 
+@persist 
+@trigger 
+
+#       /$$     /$$                  /$$$$$$  /$$ /$$                          
+#      | $$    | $$                 /$$__  $$|__/|__/                          
+#     /$$$$$$  | $$$$$$$   /$$$$$$ | $$  \__/ /$$ /$$ /$$   /$$ /$$   /$$      
+#    |_  $$_/  | $$__  $$ /$$__  $$|  $$$$$$ | $$| $$|  $$ /$$/|  $$ /$$/      
+#      | $$    | $$  \ $$| $$$$$$$$ \____  $$| $$| $$ \  $$$$/  \  $$$$/       
+#      | $$ /$$| $$  | $$| $$_____/ /$$  \ $$| $$| $$  >$$  $$   >$$  $$       
+#      |  $$$$/| $$  | $$|  $$$$$$$|  $$$$$$/| $$| $$ /$$/\  $$ /$$/\  $$      
+#       \___/  |__/  |__/ \_______/ \______/ |__/|__/|__/  \__/|__/  \__/      
+                                                                          
+
+if(first()){
+    HelpString = array()
+    HelpString:pushString("")
+    HelpString:pushString("ADAC Calculation")
+    HelpString:pushString("!calc <Auspuff-Amount> <Auspuff-Amount> <Licht-Amount> <Reifen-Amount> <Abgeschleppt true/false>")
+    
+    for(I=1, HelpString:count()) { print(_HUD_PRINTCONSOLE, HelpString[I,string]) }
+    
+}
+                                                                          
+runOnChat(1)
+if(chatClk(owner())){
+    Said = lastSaid():explode(" ")
+    Motor = Said[2,string]
+    Auspuff = Said[3,string]
+    Licht = Said[4,string]
+    Reifen = Said[5,string]
+    Abgeschleppt = Said[6,string]
+    PreisM = "1000"
+    PreisA = "500"
+    PreisL = "120"
+    PreisR = "210"
+    PreisAb = "400"
+    
+    if(Said[1,string]=="!calc" && Motor!="" && Auspuff!="" && Licht!="" && Reifen!="" && Abgeschleppt!=""){
+        
+        if(Abgeschleppt=="true"){
+            Zwischenrechnung = Motor:toNumber() * PreisM:toNumber() + Auspuff:toNumber() * PreisA:toNumber() + Licht:toNumber() * PreisL:toNumber() + Reifen:toNumber() * PreisR:toNumber() + PreisAb:toNumber()
+            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * 20
+            print(Rechnung)
+        
+        
+        }elseif(Abgeschleppt=="false"){
+            Zwischenrechnung = Motor:toNumber() * PreisM:toNumber() + Auspuff:toNumber() * PreisA:toNumber() + Licht:toNumber() * PreisL:toNumber() + Reifen:toNumber() * PreisR:toNumber()
+            Rechnung = Zwischenrechnung + Zwischenrechnung / 100 * 20
+            print(Rechnung)
+        }else{
+            print("Fehler. Kosten konten nicht berechnet werden!")
+        }            
+    }
+}                                                                          
