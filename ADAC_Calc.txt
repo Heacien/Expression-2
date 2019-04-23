@@ -32,7 +32,7 @@ if(first()){
     HelpString:pushString("")
     HelpString:pushString("ADAC Calculation")
     HelpString:pushString("!calc <Auspuff-Amount> <Auspuff-Amount> <Licht-Amount> <Reifen-Amount> <Abgeschleppt true/false>")
-    
+
     # Gibt alle HelpStrings in der Console aus
     for(I=1, HelpString:count()) { print(_HUD_PRINTCONSOLE, HelpString[I,string]) }
     
@@ -44,7 +44,7 @@ if(first()){
     PreisAb = 400 # Kosten fuer Abschleppen
     PreisRep = 30 # Kosten fuer Reparatur (Prozentualer Aufschlag)
 }
-                                                                          
+
 runOnChat(1)
 if(chatClk(owner())){
     # Strings aus Command mit Ziffern
@@ -54,7 +54,7 @@ if(chatClk(owner())){
     Licht = Said[4,string]:toNumber()
     Reifen = Said[5,string]:toNumber()
     Abgeschleppt = Said[6,string]
-    
+
     #Strings fuer den Namen
     Kunde = findPlayerByName(Said[7,string])
     print(Kunde)
@@ -64,11 +64,12 @@ if(chatClk(owner())){
     if(Said[1,string] == "!calc"){
         # Laesst die Chat Message nicht anzeigen
         hideChat(1)
-        
+
         # Fahrzeug wurde abgeschleppt (false/true String)
         if(Abgeschleppt=="true"){
             #Rechnet die Endsumme aus
             zwischenrechnung(Motor, Auspuff, Licht, Reifen, PreisAb, PluckedName)
+            
         # Fahrzeug wurde nicht abgeschleppt (false/true String)
         }elseif(Abgeschleppt=="false"){
             # Rechnet die Endsumme aus
